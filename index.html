@@ -68,16 +68,35 @@
         .poster { width: 130px; height: 195px; object-fit: cover; border-radius: 5px; scroll-snap-align: start; cursor: pointer; transition: transform 0.2s; flex-shrink: 0; }
         .poster:active { transform: scale(0.95); }
 
+        /* Modal y botones de reacción */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.95); z-index: 200; justify-content: center; align-items: center; flex-direction: column; padding: 20px;
         }
         .modal-content { background-color: #181818; border-radius: 10px; width: 100%; max-width: 400px; overflow: hidden; position: relative; }
         .cerrar { position: absolute; top: 10px; right: 15px; color: #fff; font-size: 28px; font-weight: bold; background: rgba(0,0,0,0.6); border-radius: 50%; width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; z-index: 10; cursor: pointer; }
-        .modal-img { width: 100%; height: 350px; object-fit: cover; object-position: top; }
+        .modal-img { width: 100%; height: 320px; object-fit: cover; object-position: top; }
         .modal-textos { padding: 20px; }
-        .modal-titulo { font-size: 24px; margin-bottom: 10px; font-weight: bold; }
-        .modal-resena { font-size: 15px; color: #d2d2d2; line-height: 1.6; }
+        .modal-titulo { font-size: 22px; margin-bottom: 8px; font-weight: bold; }
+        .modal-resena { font-size: 14px; color: #d2d2d2; line-height: 1.5; margin-bottom: 15px; }
+
+        /* Botones de Reacción en el Modal */
+        .reacciones-box { display: flex; gap: 15px; justify-content: center; margin-top: 10px; border-top: 1px solid #333; padding-top: 15px; }
+        .btn-reaccion { background: #262626; border: 1px solid #444; color: #fff; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 16px; display: flex; align-items: center; gap: 6px; transition: transform 0.1s, background 0.2s; }
+        .btn-reaccion:active { transform: scale(0.9); }
+        .btn-like:hover { background: #e50914; border-color: #e50914; }
+        .btn-dislike:hover { background: #333; border-color: #666; }
+
+        /* Animaciones flotantes para corazones y caritas tristes */
+        .flotante {
+            position: fixed; z-index: 9999; font-size: 28px;
+            user-select: none; pointer-events: none;
+            animation: subirFlotando 1.5s ease-out forwards;
+        }
+        @keyframes subirFlotando {
+            0% { transform: translateY(0) scale(0.5); opacity: 1; }
+            100% { transform: translateY(-350px) scale(1.4); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -204,6 +223,7 @@
     
     <div style="height: 60px;"></div>
 
+    <!-- Ventana Modal con Botones de Reacción -->
     <div id="miModal" class="modal">
         <div class="modal-content">
             <div class="cerrar" onclick="cerrarModal()">×</div>
@@ -215,6 +235,12 @@
                     <span class="hd-tag">Real</span>
                 </div>
                 <p id="modalResena" class="modal-resena">Reseña...</p>
+                
+                <!-- Botones de Reacción Me gusta / No me gusta -->
+                <div class="reacciones-box">
+                    <button class="btn-reaccion btn-like" onclick="reaccionar('like')">❤️ Me gusta</button>
+                    <button class="btn-reaccion btn-dislike" onclick="reaccionar('dislike')">💔 No me gusta</button>
+                </div>
             </div>
         </div>
     </div>
@@ -237,6 +263,36 @@
         function cerrarModal() {
             document.getElementById('miModal').style.display = 'none';
             document.body.style.overflow = 'auto';
+        }
+
+        // Función para generar animación de corazones o caritas tristes flotantes
+        function reaccionar(tipo) {
+            const simbolo = tipo === 'like' ? '❤️' : '😢';
+            const cantidad = tipo === 'like' ? 15 : 8;
+
+            for (let i = 0; i < cantidad; i++) {
+                const el = document.createElement('div');
+                el.className = 'flotante';
+                el.innerText = simbolo;
+
+                // Posición horizontal aleatoria centrada cerca del modal
+                const xPos = window.innerWidth / 2 + (Math.random() * 200 - 100);
+                const yPos = window.innerHeight - 150;
+
+                el.style.left = xPos + 'px';
+                el.style.top = yPos + 'px';
+                
+                // Variación en la velocidad y dirección de salida
+                const randomX = Math.random() * 100 - 50;
+                el.style.transform = `translate(${randomX}px, 0px) scale(${Math.random() * 0.8 + 0.8})`;
+
+                document.body.appendChild(el);
+
+                // Eliminar el elemento después de que termine la animación
+                setTimeout(() => {
+                    el.remove();
+                }, 1500);
+            }
         }
     </script>
 </body>
