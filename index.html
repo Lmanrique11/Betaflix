@@ -7,45 +7,50 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
         body { background-color: #141414; color: #ffffff; overflow-x: hidden; }
+        .no-scroll { overflow: hidden; height: 100vh; } /* Bloquea el scroll al inicio */
 
-        /* Pantalla de Intro Estilo Netflix */
+        /* 1. PANTALLA DE PERFILES */
+        #profile-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #141414; z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        #profile-screen h1 { font-size: 32px; font-weight: normal; margin-bottom: 30px; color: #fff; text-align: center;}
+        .profiles { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .profile { text-align: center; cursor: pointer; transition: transform 0.2s; width: 100px; }
+        .profile:hover { transform: scale(1.1); }
+        .profile-img-container { position: relative; margin-bottom: 10px; }
+        .profile img { width: 100px; height: 100px; border-radius: 10px; object-fit: cover; border: 3px solid transparent; transition: border 0.2s; }
+        .profile:hover img { border-color: #fff; }
+        .profile p { color: #808080; font-size: 16px; transition: color 0.2s; }
+        .profile:hover p { color: #fff; }
+        .lock-icon { position: absolute; bottom: -5px; right: -5px; background: #e50914; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+
+        /* Pantalla de Intro Animada */
         #netflix-intro {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            animation: fadeOut 0.8s ease 2.2s forwards;
+            display: none; justify-content: center; align-items: center;
             pointer-events: none;
         }
-        .intro-logo {
-            font-size: 50px; font-weight: bold; color: #E50914; letter-spacing: 4px;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            animation: zoomIn 1.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-        }
-        @keyframes zoomIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes fadeOut {
-            to { opacity: 0; visibility: hidden; }
-        }
+        .animar-intro { display: flex !important; animation: fadeOut 0.8s ease 2.2s forwards; }
+        .animar-intro .intro-logo { animation: zoomIn 1.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; }
+        
+        .intro-logo { font-size: 50px; font-weight: bold; color: #E50914; letter-spacing: 4px; opacity: 0; }
+        
+        @keyframes zoomIn { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
 
+        /* Estructura general de la página */
         header {
             position: fixed; top: 0; width: 100%; padding: 15px 20px;
             background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
             z-index: 100; color: #E50914; font-weight: bold; font-size: 24px; letter-spacing: 2px;
+            cursor: pointer; /* Para el Easter Egg */
         }
 
-        .hero {
-            height: 75vh;
-            background-image: url('125.jpeg'); 
-            background-size: cover; background-position: center top;
-            position: relative; display: flex; align-items: flex-end; justify-content: center;
-        }
-        .hero::after {
-            content: ''; position: absolute; bottom: 0; width: 100%; height: 65%;
-            background: linear-gradient(to top, #141414 0%, transparent 100%);
-        }
+        .hero { height: 75vh; background-image: url('125.jpeg'); background-size: cover; background-position: center top; position: relative; display: flex; align-items: flex-end; justify-content: center; }
+        .hero::after { content: ''; position: absolute; bottom: 0; width: 100%; height: 65%; background: linear-gradient(to top, #141414 0%, transparent 100%); }
         .hero-content { position: relative; z-index: 10; text-align: center; padding: 0 20px 20px 20px; width: 100%; }
         
         .hero-title { font-size: 45px; margin-bottom: 5px; font-family: 'Georgia', serif; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
@@ -56,60 +61,84 @@
         .hd-tag { border: 1px solid #a3a3a3; padding: 1px 4px; border-radius: 3px; font-size: 10px; }
 
         .sinopsis { font-size: 14px; color: #fff; text-shadow: 1px 1px 2px #000; margin-bottom: 20px; line-height: 1.4; max-width: 90%; margin-left: auto; margin-right: auto; }
-
         .botones { display: flex; justify-content: center; gap: 15px; }
         .btn { border: none; padding: 10px 24px; border-radius: 4px; font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .btn-play { background-color: #fff; color: #000; }
 
         .fila { margin-top: 25px; padding-left: 15px; }
         .fila h2 { font-size: 17px; margin-bottom: 12px; font-weight: bold; }
-        .posters { display: flex; overflow-x: auto; overflow-y: hidden; gap: 12px; padding-right: 15px; scroll-snap-type: x mandatory; }
+        .posters { display: flex; overflow-x: auto; overflow-y: hidden; gap: 12px; padding-right: 15px; scroll-snap-type: x mandatory; padding-top: 10px; padding-bottom: 10px; }
         .posters::-webkit-scrollbar { display: none; }
-        .poster { width: 130px; height: 195px; object-fit: cover; border-radius: 5px; scroll-snap-align: start; cursor: pointer; transition: transform 0.2s; flex-shrink: 0; }
-        .poster:active { transform: scale(0.95); }
+        
+        /* ZOOM AL PASAR EL RATÓN O DEDO */
+        .poster { width: 130px; height: 195px; object-fit: cover; border-radius: 5px; scroll-snap-align: start; cursor: pointer; transition: transform 0.3s, margin 0.3s; flex-shrink: 0; }
+        .poster:hover { transform: scale(1.15); z-index: 10; margin: 0 8px; border: 2px solid #fff; }
+        
+        /* Posters falsos para "Próximos Estrenos" */
+        .dummy-poster { display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(45deg, #1f1f1f, #333); color: #fff; text-align: center; padding: 10px; border-radius: 5px; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 2px #000; }
+        .dummy-poster span { font-size: 30px; margin-bottom: 8px; }
 
-        /* Modal rediseñado para que los botones queden fijos y visibles siempre */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.95); z-index: 200; justify-content: center; align-items: center; padding: 15px;
-        }
+        /* Modal Optimizado */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); z-index: 20000; justify-content: center; align-items: center; padding: 15px; }
         .modal-content { background-color: #181818; border-radius: 12px; width: 100%; max-width: 350px; overflow: hidden; position: relative; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.7); }
         .cerrar { position: absolute; top: 10px; right: 12px; color: #fff; font-size: 22px; font-weight: bold; background: rgba(0,0,0,0.7); border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; z-index: 10; cursor: pointer; }
-        
-        /* Imagen con tamaño controlado */
         .modal-img { width: 100%; height: 200px; object-fit: cover; object-position: top; }
-        
         .modal-textos { padding: 14px 16px; display: flex; flex-direction: column; flex-grow: 1; }
         .modal-titulo { font-size: 19px; margin-bottom: 4px; font-weight: bold; }
         .modal-resena { font-size: 13px; color: #d2d2d2; line-height: 1.4; margin-bottom: 12px; flex-grow: 1; }
 
-        /* Botones de Reacción fijos abajo del modal */
-        .reacciones-box { display: flex; gap: 12px; justify-content: center; border-top: 1px solid #282828; padding-top: 12px; margin-top: auto; }
-        .btn-reaccion { background: #262626; border: 1px solid #444; color: #fff; padding: 7px 14px; border-radius: 20px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px; transition: transform 0.1s, background 0.2s; font-weight: 500; }
+        /* Botones de Reacción (Ahora incluye Mi Lista) */
+        .reacciones-box { display: flex; gap: 8px; justify-content: center; border-top: 1px solid #282828; padding-top: 12px; margin-top: auto; flex-wrap: wrap; }
+        .btn-reaccion { background: #262626; border: 1px solid #444; color: #fff; padding: 7px 12px; border-radius: 20px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px; transition: transform 0.1s, background 0.2s; font-weight: 500; }
         .btn-reaccion:active { transform: scale(0.92); }
         .btn-like:hover { background: #e50914; border-color: #e50914; }
         .btn-dislike:hover { background: #333; border-color: #666; }
+        .btn-guardar:hover { background: #fff; color: #000; border-color: #fff; }
 
-        /* Animaciones flotantes para corazones y caritas tristes */
-        .flotante {
-            position: fixed; z-index: 9999; font-size: 28px;
-            user-select: none; pointer-events: none;
-            animation: subirFlotando 1.5s ease-out forwards;
-        }
-        @keyframes subirFlotando {
-            0% { transform: translateY(0) scale(0.5); opacity: 1; }
-            100% { transform: translateY(-350px) scale(1.4); opacity: 0; }
-        }
+        .flotante { position: fixed; z-index: 99999; font-size: 28px; user-select: none; pointer-events: none; animation: subirFlotando 1.5s ease-out forwards; }
+        @keyframes subirFlotando { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-350px) scale(1.4); opacity: 0; } }
     </style>
 </head>
-<body>
+<body class="no-scroll">
+
+    <!-- AUDIO OCULTO PARA EL TUDUM -->
+    <!-- Como no podemos subir mp3 directo a GitHub desde el chat, usamos el enlace directo a un efecto de inicio -->
+    <audio id="sonido-tudum" src="https://www.myinstants.com/media/sounds/netflix-intro-sound.mp3" preload="auto"></audio>
+
+    <!-- PANTALLA DE PERFILES -->
+    <div id="profile-screen">
+        <h1>¿Quién está viendo?</h1>
+        <div class="profiles">
+            <div class="profile" onclick="iniciarNetflix()">
+                <div class="profile-img-container">
+                    <img src="156.jpeg" alt="Betania">
+                </div>
+                <p>Betania</p>
+            </div>
+            <div class="profile" onclick="iniciarNetflix()">
+                <div class="profile-img-container">
+                    <img src="162.jpeg" alt="Leonardo">
+                </div>
+                <p>Leonardo</p>
+            </div>
+            <!-- PERFIL BLOQUEADO DEL GATO -->
+            <div class="profile" onclick="bloqueoGato()">
+                <div class="profile-img-container">
+                    <img src="138.jpeg" alt="Lucky">
+                    <div class="lock-icon">🔒</div>
+                </div>
+                <p>Lucky</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Animación de Intro -->
     <div id="netflix-intro">
         <div class="intro-logo">BETAFLIX</div>
     </div>
 
-    <header>BETAFLIX</header>
+    <!-- HEADER CON EASTER EGG (5 Clics) -->
+    <header onclick="easterEgg()">BETAFLIX</header>
 
     <div class="hero">
         <div class="hero-content">
@@ -126,6 +155,14 @@
             <div class="botones">
                 <button class="btn btn-play" onclick="abrirModal('125.jpeg', 'La negra', 'Historia protagonizada por una mujer de corazón inmensamente sensible, pero con un coraje inquebrantable. Ella no se detiene, resuelve cualquier problema y domina este mundo mejor que cualquier reina.')">▶ Ver resumen</button> 
             </div>
+        </div>
+    </div>
+
+    <!-- FILA DINÁMICA: MI LISTA (Se oculta si está vacía) -->
+    <div class="fila" id="fila-milista" style="display: none;">
+        <h2>Mi Lista ❤️ (Tus favoritos)</h2>
+        <div class="posters" id="posters-milista">
+            <!-- Aquí se cargan las fotos guardadas con JS -->
         </div>
     </div>
 
@@ -223,10 +260,26 @@
             <img src="30.jpeg" class="poster" onclick="abrirModal(this.src, 'Muñeca', 'Blanquita que viene de Holanda.... pff mi amooor!!')">
         </div>
     </div>
+
+    <!-- NUEVA FILA: Próximos Estrenos -->
+    <div class="fila">
+        <h2>Próximos Estrenos (Lo que nos espera) 🚀</h2>
+        <div class="posters">
+            <div class="poster dummy-poster" onclick="abrirModal('', 'Nuevos Viajes', 'Temporada 2: Preparando las maletas para nuestra próxima gran aventura. Donde sea, pero contigo.')">
+                <span>✈️</span> Viajes Juntos
+            </div>
+            <div class="poster dummy-poster" onclick="abrirModal('', 'Metas Cumplidas', 'Nuevos logros profesionales y sueños que vamos a alcanzar celebrando de la mano.')">
+                <span>🏆</span> Triunfos
+            </div>
+            <div class="poster dummy-poster" onclick="abrirModal('', 'Mucho más amor', 'Renovado por 100 temporadas más. Porque esto apenas está comenzando, mi amor.')">
+                <span>💍</span> Nuestro Futuro
+            </div>
+        </div>
+    </div>
     
     <div style="height: 60px;"></div>
 
-    <!-- Ventana Modal Optimizada -->
+    <!-- Ventana Modal Optimizada con Botón de Guardar -->
     <div id="miModal" class="modal">
         <div class="modal-content">
             <div class="cerrar" onclick="cerrarModal()">×</div>
@@ -239,19 +292,52 @@
                 </div>
                 <p id="modalResena" class="modal-resena">Reseña...</p>
                 
-                <!-- Botones de Reacción siempre visibles -->
+                <!-- Botones de Reacción -->
                 <div class="reacciones-box">
                     <button class="btn-reaccion btn-like" onclick="reaccionar('like')">❤️ Me gusta</button>
                     <button class="btn-reaccion btn-dislike" onclick="reaccionar('dislike')">💔 No me gusta</button>
+                    <button class="btn-reaccion btn-guardar" onclick="agregarMiLista()">➕ Mi Lista</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // --- 1. LÓGICA DE PERFILES Y SONIDO ---
+        function iniciarNetflix() {
+            document.getElementById('profile-screen').style.display = 'none';
+            document.body.classList.remove('no-scroll');
+            document.getElementById('netflix-intro').classList.add('animar-intro');
+            
+            // Reproducir sonido "Tudum"
+            const audio = document.getElementById('sonido-tudum');
+            if(audio) {
+                audio.play().catch(e => console.log('Bloqueo de audio del navegador superado'));
+            }
+        }
+
+        function bloqueoGato() {
+            let pass = prompt("Acceso Restringido. Ingrese la contraseña felina:");
+            if (pass !== null) {
+                alert("❌ Acceso denegado. Solo michis autorizados con huella dactilar de patita.");
+            }
+        }
+
+        // --- 2. HUEVO DE PASCUA (EASTER EGG) ---
+        let clicsLogo = 0;
+        function easterEgg() {
+            clicsLogo++;
+            if(clicsLogo === 5) {
+                abrirModal('', 'Carta Secreta 💌', 'Negra, si descubriste esto es porque tocaste la pantalla como loca jajaja. Quería dejar un espacio escondido en el código solo para decirte que eres el amor de mi vida. Gracias por cada sonrisa, por soportar mis locuras y por dejarme ser parte de tu mundo. Te amo infinito.');
+                reaccionar('like'); // Lluvia de corazones automática
+                clicsLogo = 0;
+            }
+        }
+
+        // --- 3. LÓGICA DEL MODAL ---
         function abrirModal(imagenSrc, titulo, resena) {
             const imgElement = document.getElementById('modalImg');
-            if (imagenSrc) {
+            if (imagenSrc && imagenSrc !== '') {
                 imgElement.src = imagenSrc;
                 imgElement.style.display = 'block';
             } else {
@@ -268,7 +354,7 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Función para generar animación de corazones o caritas tristes flotantes
+        // --- 4. REACCIONES (CORAZONES Y CARITAS) ---
         function reaccionar(tipo) {
             const simbolo = tipo === 'like' ? '❤️' : '😢';
             const cantidad = tipo === 'like' ? 15 : 8;
@@ -289,11 +375,50 @@
 
                 document.body.appendChild(el);
 
-                setTimeout(() => {
-                    el.remove();
-                }, 1500);
+                setTimeout(() => { el.remove(); }, 1500);
             }
         }
+
+        // --- 5. LÓGICA DE "MI LISTA" ---
+        function agregarMiLista() {
+            const imgSrc = document.getElementById('modalImg').src;
+            if(!imgSrc || imgSrc.includes('125.jpeg') && document.getElementById('modalTitulo').innerText === 'La negra') return; // Evita guardar la intro
+
+            let lista = JSON.parse(localStorage.getItem('miListaBetaflix') || '[]');
+            
+            // Si la foto no está en la lista, la agregamos
+            if(!lista.includes(imgSrc)) {
+                lista.push(imgSrc);
+                localStorage.setItem('miListaBetaflix', JSON.stringify(lista));
+                reaccionar('like'); // Efecto visual
+                cargarMiLista(); // Actualizar la fila visible
+                alert("✅ Guardado en tu lista de favoritos.");
+            } else {
+                alert("Esta foto ya está en tu lista.");
+            }
+        }
+
+        function cargarMiLista() {
+            let lista = JSON.parse(localStorage.getItem('miListaBetaflix') || '[]');
+            let filaLista = document.getElementById('fila-milista');
+            let contenedorPosters = document.getElementById('posters-milista');
+            
+            if(lista.length > 0) {
+                filaLista.style.display = 'block';
+                contenedorPosters.innerHTML = ''; // Limpiar
+                
+                lista.forEach(src => {
+                    // Extraer nombre del archivo para armar ruta relativa limpia y evitar errores de URL local
+                    let cleanSrc = src.substring(src.lastIndexOf('/')+1);
+                    contenedorPosters.innerHTML += `<img src="${cleanSrc}" class="poster" onclick="abrirModal(this.src, 'Mi Favorito', 'Elegiste esta foto como una de tus favoritas de toda la serie.')">`;
+                });
+            }
+        }
+
+        // Cargar lista guardada al iniciar la página
+        window.onload = function() {
+            cargarMiLista();
+        };
     </script>
 </body>
 </html>
