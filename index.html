@@ -68,22 +68,25 @@
         .poster { width: 130px; height: 195px; object-fit: cover; border-radius: 5px; scroll-snap-align: start; cursor: pointer; transition: transform 0.2s; flex-shrink: 0; }
         .poster:active { transform: scale(0.95); }
 
-        /* Modal y botones de reacción */
+        /* Modal rediseñado para que los botones queden fijos y visibles siempre */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.95); z-index: 200; justify-content: center; align-items: center; flex-direction: column; padding: 20px;
+            background-color: rgba(0,0,0,0.95); z-index: 200; justify-content: center; align-items: center; padding: 15px;
         }
-        .modal-content { background-color: #181818; border-radius: 10px; width: 100%; max-width: 400px; overflow: hidden; position: relative; }
-        .cerrar { position: absolute; top: 10px; right: 15px; color: #fff; font-size: 28px; font-weight: bold; background: rgba(0,0,0,0.6); border-radius: 50%; width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; z-index: 10; cursor: pointer; }
-        .modal-img { width: 100%; height: 320px; object-fit: cover; object-position: top; }
-        .modal-textos { padding: 20px; }
-        .modal-titulo { font-size: 22px; margin-bottom: 8px; font-weight: bold; }
-        .modal-resena { font-size: 14px; color: #d2d2d2; line-height: 1.5; margin-bottom: 15px; }
+        .modal-content { background-color: #181818; border-radius: 12px; width: 100%; max-width: 350px; overflow: hidden; position: relative; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.7); }
+        .cerrar { position: absolute; top: 10px; right: 12px; color: #fff; font-size: 22px; font-weight: bold; background: rgba(0,0,0,0.7); border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; z-index: 10; cursor: pointer; }
+        
+        /* Imagen con tamaño controlado */
+        .modal-img { width: 100%; height: 200px; object-fit: cover; object-position: top; }
+        
+        .modal-textos { padding: 14px 16px; display: flex; flex-direction: column; flex-grow: 1; }
+        .modal-titulo { font-size: 19px; margin-bottom: 4px; font-weight: bold; }
+        .modal-resena { font-size: 13px; color: #d2d2d2; line-height: 1.4; margin-bottom: 12px; flex-grow: 1; }
 
-        /* Botones de Reacción en el Modal */
-        .reacciones-box { display: flex; gap: 15px; justify-content: center; margin-top: 10px; border-top: 1px solid #333; padding-top: 15px; }
-        .btn-reaccion { background: #262626; border: 1px solid #444; color: #fff; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 16px; display: flex; align-items: center; gap: 6px; transition: transform 0.1s, background 0.2s; }
-        .btn-reaccion:active { transform: scale(0.9); }
+        /* Botones de Reacción fijos abajo del modal */
+        .reacciones-box { display: flex; gap: 12px; justify-content: center; border-top: 1px solid #282828; padding-top: 12px; margin-top: auto; }
+        .btn-reaccion { background: #262626; border: 1px solid #444; color: #fff; padding: 7px 14px; border-radius: 20px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px; transition: transform 0.1s, background 0.2s; font-weight: 500; }
+        .btn-reaccion:active { transform: scale(0.92); }
         .btn-like:hover { background: #e50914; border-color: #e50914; }
         .btn-dislike:hover { background: #333; border-color: #666; }
 
@@ -223,20 +226,20 @@
     
     <div style="height: 60px;"></div>
 
-    <!-- Ventana Modal con Botones de Reacción -->
+    <!-- Ventana Modal Optimizada -->
     <div id="miModal" class="modal">
         <div class="modal-content">
             <div class="cerrar" onclick="cerrarModal()">×</div>
             <img id="modalImg" src="" class="modal-img" style="display: none;">
             <div class="modal-textos">
                 <h2 id="modalTitulo" class="modal-titulo">Título</h2>
-                <div class="tags" style="justify-content: flex-start; margin-bottom: 12px;">
+                <div class="tags" style="justify-content: flex-start; margin-bottom: 6px;">
                     <span class="match">Nuestra Serie</span>
                     <span class="hd-tag">Real</span>
                 </div>
                 <p id="modalResena" class="modal-resena">Reseña...</p>
                 
-                <!-- Botones de Reacción Me gusta / No me gusta -->
+                <!-- Botones de Reacción siempre visibles -->
                 <div class="reacciones-box">
                     <button class="btn-reaccion btn-like" onclick="reaccionar('like')">❤️ Me gusta</button>
                     <button class="btn-reaccion btn-dislike" onclick="reaccionar('dislike')">💔 No me gusta</button>
@@ -275,20 +278,17 @@
                 el.className = 'flotante';
                 el.innerText = simbolo;
 
-                // Posición horizontal aleatoria centrada cerca del modal
                 const xPos = window.innerWidth / 2 + (Math.random() * 200 - 100);
                 const yPos = window.innerHeight - 150;
 
                 el.style.left = xPos + 'px';
                 el.style.top = yPos + 'px';
                 
-                // Variación en la velocidad y dirección de salida
                 const randomX = Math.random() * 100 - 50;
                 el.style.transform = `translate(${randomX}px, 0px) scale(${Math.random() * 0.8 + 0.8})`;
 
                 document.body.appendChild(el);
 
-                // Eliminar el elemento después de que termine la animación
                 setTimeout(() => {
                     el.remove();
                 }, 1500);
